@@ -1,10 +1,6 @@
 name: CI
 
-on:
-  push:
-      branches: [develop]
-  pull_request:
-      branches: [develop]
+on: push
 
 jobs:
   build:
@@ -17,4 +13,24 @@ jobs:
         run: ./other/download_libs.sh
 
       - name: Build
-        run: xcodebuild -project iina.xcodeproj -scheme iina CODE_SIGNING_ALLOWED=NO
+        run: |
+          xcodebuild \
+            -project iina.xcodeproj \
+            -scheme iina \
+            -configuration Release CODE_SIGNING_ALLOWED=YES
+
+          find /Users/ -type d -name "IINA.app" > build.txt
+
+          echo "build.txt"
+          cat build.txt
+      - name: Move artifact.
+        run: |
+          p=`cat build.txt`
+          mkdir artifact
+          mv $p artifact/
+      - uses: actions/upload-artifact@master
+        name: Upload artifact.
+        with:
+          name: IINA
+          path: artifact/
+
